@@ -234,9 +234,11 @@ int main(void)
     /* GPIO Initialization*/
     IO_Configuration();
 
-    httpServer_init(g_send_buf, g_recv_buf, MAX_HTTPSOCK, socknumlist);
-    reg_httpServer_cbfunc(NVIC_SystemReset, NULL);
-    reg_httpServer_webContent("index.html", _acindex);
+    if (dev_config->options.pw_search[0] == 0) {  //search ID Disabled
+      httpServer_init(g_send_buf, g_recv_buf, MAX_HTTPSOCK, socknumlist);
+      reg_httpServer_cbfunc(NVIC_SystemReset, NULL);
+      reg_httpServer_webContent("index.html", _acindex);
+    }
     
     while(1) // main loop
     {
@@ -260,8 +262,10 @@ int main(void)
         }
 #endif        
         if(dev_config->options.dhcp_use) DHCP_run(); // DHCP client handler for IP renewal
-
-        for(i = 0; i < MAX_HTTPSOCK; i++)	httpServer_run(i);
+        
+        if (dev_config->options.pw_search[0] == 0) { //search ID Disabled
+          for(i = 0; i < MAX_HTTPSOCK; i++)	httpServer_run(i);
+        }
         // ## debugging: Data echoback
         //loopback_tcps(6, g_recv_buf, 5001); // Loopback
         //loopback_iperf(6, g_recv_buf, 5001); // iperf: Ethernet performance test
